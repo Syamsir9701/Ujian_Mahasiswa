@@ -1,5 +1,7 @@
 package com.kuliah.main.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -10,19 +12,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.kuliah.main.entity.AdminUser;
-import com.kuliah.main.services.ModelAdminUser;
+import com.kuliah.main.repository.AdminUserRepository;
+
 
 @Controller
 public class AdminUserPage {
 	
 	@Autowired
-	ModelAdminUser modelAdminUser;
-	
-	
+	AdminUserRepository adminuserRepo;
+		
 	@GetMapping("/adminuser/view")
 	public String viewIndexAdminUser(Model model) {
 		
-		model.addAttribute("listAdminUser",modelAdminUser.getAllAdminUser());
+		model.addAttribute("listAdminUser",adminuserRepo.getAllAdminUser());
 		model.addAttribute("active",1);
 		model.addAttribute("test","Test Aja");
 		
@@ -48,8 +50,8 @@ public class AdminUserPage {
 		String encodedPassword = passwordEncoder.encode(plainPassword);
         adminuser.setPassword(encodedPassword);		
 		
-		this.modelAdminUser.addAdminUser(adminuser);
-		model.addAttribute("listAdminUser",modelAdminUser.getAllAdminUser());
+		this.adminuserRepo.addAdminUser(adminuser);
+		model.addAttribute("listAdminUser",adminuserRepo.getAllAdminUser());
 		
 		
 		return "redirect:/adminuser/view";
@@ -59,7 +61,7 @@ public class AdminUserPage {
 	@GetMapping("/adminuser/update/{id}")
 	public String viewUpdateAdminUser(@PathVariable String id, Model model) {
 		
-		AdminUser adminuser = modelAdminUser.getAdminUserById(id);
+		AdminUser adminuser = adminuserRepo.getAdminUserById(id);
 		// buat penampung data adminuser di halaman htmlnya
 		model.addAttribute("adminuser",adminuser);
 		
@@ -69,8 +71,8 @@ public class AdminUserPage {
 	@GetMapping("/adminuser/delete/{id}")
 	public String deleteAdminUser(@PathVariable String id, Model model) {
 		
-		this.modelAdminUser.deleteAdminUser(id);
-		model.addAttribute("listAdminUser",modelAdminUser.getAllAdminUser());
+		this.adminuserRepo.deleteAdminUser(id);
+		model.addAttribute("listAdminUser",adminuserRepo.getAllAdminUser());
 		
 		
 		return "redirect:/adminuser/view";

@@ -86,5 +86,7 @@ public class CustomUserDetail implements UserDetails {
     public String getFullName() {
         return user.getUsername();
     }
+    
+    
  
 }

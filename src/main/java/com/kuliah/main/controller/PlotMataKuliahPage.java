@@ -17,178 +17,117 @@ import com.kuliah.main.entity.Pertanyaan;
 import com.kuliah.main.entity.PlotMataKuliah;
 import com.kuliah.main.entity.Soal;
 import com.kuliah.main.entity.UjianHasil;
-import com.kuliah.main.services.ModelDosen;
-import com.kuliah.main.services.ModelMahasiswa;
-import com.kuliah.main.services.ModelMataKuliah;
-import com.kuliah.main.services.ModelPertanyaan;
-import com.kuliah.main.services.ModelPlotMataKuliah;
-import com.kuliah.main.services.ModelSoal;
+import com.kuliah.main.repository.DosenRepository;
+import com.kuliah.main.repository.MahasiswaRepository;
+import com.kuliah.main.repository.MataKuliahRepository;
+import com.kuliah.main.repository.PlotMataKuliahRepository;
+import com.kuliah.main.repository.SoalRepository;
 
 @Controller
 public class PlotMataKuliahPage {
 	
 	@Autowired
-	ModelPlotMataKuliah modelPlotMataKuliah;
+	PlotMataKuliahRepository plotmatakuliahRepo;
 	
 	@Autowired
-	ModelMataKuliah modelMataKuliah;
+	MataKuliahRepository matakuliahRepo;
 	
 	@Autowired
-	ModelMahasiswa modelMahasiswa ;
+	MahasiswaRepository mahasiswaRepo;
 	
 	@Autowired
-	ModelDosen modelDosen ;
+	DosenRepository dosenRepo;
 	
 	@Autowired
-	ModelSoal modelSoal ;
+	SoalRepository soalRepo;	
 	
+	@PostMapping("/plotmatakuliah/view")
+	public String addPlotMataKuliah(@ModelAttribute PlotMataKuliah plotmatakuliah, Model model) {
+		this.plotmatakuliahRepo.addPlotMataKuliah(plotmatakuliah);
+		model.addAttribute("listPlotMataKuliah",plotmatakuliahRepo.getAllPlotMataKuliah());
+		
+		return "redirect:/plotmatakuliah/view";
+	}
 	
 	@GetMapping("/plotmatakuliah/view")
 	public String viewIndexPlotMataKuliah(Model model) {
-		
-		model.addAttribute("listPlotMataKuliah",modelPlotMataKuliah.getAllPlotMataKuliah());
-		model.addAttribute("active",6);
+		model.addAttribute("listPlotMataKuliah", plotmatakuliahRepo.getAllPlotMataKuliah());
+		model.addAttribute("active", 6);
 		return "view_plotmatakuliah";
 	}
-	
 	
 	@GetMapping("/plotmatakuliah/add")
 	public String viewAddPlotMataKuliah(Model model) {
 		
-		// buat penampung data PlotMataKuliah di halaman htmlnya
-		model.addAttribute("plotmatakuliah",new PlotMataKuliah());
-		model.addAttribute("listMataKuliah", modelMataKuliah.getAllMataKuliah());
-		model.addAttribute("listMahasiswa", modelMahasiswa.getAllMahasiswa());
-		model.addAttribute("listDosen", modelDosen.getAllDosen());
-		model.addAttribute("listSoal", modelSoal.getAllSoal());
-		
+		model.addAttribute("plotmatakuliah", new PlotMataKuliah());
+		model.addAttribute("listMataKuliah", matakuliahRepo.getAllMataKuliah());
+		model.addAttribute("listMahasiswa", mahasiswaRepo.getAllMahasiswa());
+		model.addAttribute("listDosen", dosenRepo.getAllDosen());
+		model.addAttribute("listSoal", soalRepo.getAllSoal());
 		
 		return "add_plotmatakuliah";
 	}
 	
-	@PostMapping("/plotmatakuliah/view")
-	  public String addPlotMataKuliah(@ModelAttribute PlotMataKuliah PlotMataKuliah, Model model) {
-		
-		// buat penampung data PlotMataKuliah di halaman htmlnya
-		this.modelPlotMataKuliah.addPlotMataKuliah(PlotMataKuliah);
-		model.addAttribute("listPlotMataKuliah",modelPlotMataKuliah.getAllPlotMataKuliah());
-		
-		
-		
-		return "redirect:/plotmatakuliah/view";
-	}
-	
-	
-	@GetMapping("/plotmatakuliah/update/{id}")
-	public String viewUpdatePlotMataKuliah(@PathVariable String id, Model model) {
-		
-		PlotMataKuliah PlotMataKuliah = modelPlotMataKuliah.getPlotMataKuliahById(id);
-		// buat penampung data PlotMataKuliah di halaman htmlnya
-		model.addAttribute("plotmatakuliah",PlotMataKuliah);
-		
-		return "add_plotmatakuliah";
-	}
-	
-	@GetMapping("/plotmatakuliah/delete/{id}")
-	public String deletePlotMataKuliah(@PathVariable String id, Model model) {
-		
-		this.modelPlotMataKuliah.deletePlotMataKuliah(id);
-		model.addAttribute("listPlotMataKuliah",modelPlotMataKuliah.getAllPlotMataKuliah());
-		
-		
-		return "redirect:/plotmatakuliah/view";
-	}
-
-	@GetMapping("/plotmatakuliah/ujian/{id}")
+	@GetMapping("/plotmatakuliah/ujian{id}")
 	public String viewUjian (@PathVariable String id, Model model) {
-		
 		List<Pertanyaan> lstPertanyaan = new ArrayList<Pertanyaan>();
 		
+		PlotMataKuliah plotmatakuliah = plotmatakuliahRepo.getPlotMataKuliahById(id);
 		
-		PlotMataKuliah PlotMataKuliah = modelPlotMataKuliah.getPlotMataKuliahById(id);
-		
-		
-		
-		
-		for (int x = 0 ; x < PlotMataKuliah.getLstSoal().size(); x++) {
+		for (int x = 0 ; x < plotmatakuliah.getLstSoal().size(); x++) {
 			
-			for (int y = 0 ; y < PlotMataKuliah.getLstSoal().get(x).getLstPertanyaan().size();y++) {
-				lstPertanyaan.add(PlotMataKuliah.getLstSoal().get(x).getLstPertanyaan().get(y));
-			
+			for (int y = 0 ; y < plotmatakuliah.getLstSoal().get(x).getLstPertanyaan().size(); y++) {
+				lstPertanyaan.add(plotmatakuliah.getLstSoal().get(x).getLstPertanyaan().get(y));
 			}
-			
-			
 		}
 		
-		List<String> lstJawaban = new ArrayList<String>(lstPertanyaan.size());
-		
-		
+		List<String> lsJawaban = new ArrayList<String>(lstPertanyaan.size());
 		
 		UjianHasil ujian = new UjianHasil();
 		ujian.setPertanyaan(lstPertanyaan);
-		ujian.setJawaban(lstJawaban);
-		model.addAttribute("ujian",ujian);
-		model.addAttribute("idPlotmata",id);
+		ujian.setJawaban(lsJawaban);
+		model.addAttribute("ujian", ujian);
+		model.addAttribute("idplotmata", id);
 		
-		
-		
-		return "view_ujian";
-		
+		return"view_ujian";
 	}
-	
-	
+
 	@PostMapping("/plotmatakuliah/ujian/hasil")
-	  public String viewHasilUjian(@ModelAttribute UjianHasil ujian,@RequestParam("idPlotmata") String id, Model model) {
-       List<Pertanyaan> lstPertanyaan = new ArrayList<Pertanyaan>();
+	public String viewHasilUjian(@ModelAttribute UjianHasil ujian,@RequestParam("idPlotmata") String id, Model model) {
+		List<Pertanyaan> lstPertanyaan = new ArrayList<Pertanyaan>();
 		
-		
-		PlotMataKuliah PlotMataKuliah = modelPlotMataKuliah.getPlotMataKuliahById(id);
-		for (int x = 0 ; x < PlotMataKuliah.getLstSoal().size(); x++) {
+		PlotMataKuliah plotmatakuliah = plotmatakuliahRepo.getPlotMataKuliahById(id);
+		for (int x = 0 ; x < plotmatakuliah.getLstSoal().size(); x++) {
 			
-			for (int y = 0 ; y < PlotMataKuliah.getLstSoal().get(x).getLstPertanyaan().size();y++) {
-				lstPertanyaan.add(PlotMataKuliah.getLstSoal().get(x).getLstPertanyaan().get(y));
+			for (int y = 0 ; y < plotmatakuliah.getLstSoal().get(x).getLstPertanyaan().size();y++) {
+			lstPertanyaan.add(plotmatakuliah.getLstSoal().get(x).getLstPertanyaan().get(y));
 			
 			}
-			
-			
-		}		
+		}
 		
 		ujian.setPertanyaan(lstPertanyaan);
 		
 		LembarPenilaian lembar = hitungNilai(ujian);
 		model.addAttribute("nilai",lembar);
 		
-		
-		
-		return "view_ujian_hasil";
+		return "view_ujianhasil";
 	}
 	
 	private LembarPenilaian hitungNilai (UjianHasil ujian) {
-		
 		LembarPenilaian nilai = new LembarPenilaian();
 		
-		
-		
-		for(int x =0 ; x < ujian.getJawaban().size();x++) {
-			
-			if(ujian.getJawaban().get(x).equalsIgnoreCase(ujian.getPertanyaan().get(x).getJawabanBenar())){
-				nilai.setBenar(nilai.getBenar()+1);
-				
+		for(int x=0 ; x  < ujian.getJawaban().size();x++) {
+			if(ujian.getJawaban().get(x).equalsIgnoreCase(ujian.getPertanyaan().get(x).getJawabanBenar())) {
+			nilai.setBenar(nilai.getBenar()+1);
 			}else {
 				nilai.setSalah(nilai.getSalah()+1);
+			
 			}
-			
-			
-			
-			
 		}
 		
 		nilai.setNilai(nilai.getBenar()/ujian.getPertanyaan().size()*100);
 		
-		
 		return nilai;
-		
 	}
-	
-	
 }
+
